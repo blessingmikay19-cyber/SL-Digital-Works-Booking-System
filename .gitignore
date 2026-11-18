@@ -1,0 +1,10 @@
+# Secrets and local config
+admin/assets/env
+.env
+
+# Flutter / editor
+admin/build/
+admin/.dart_tool/
+.DS_Store
+.idea/
+.vscode/

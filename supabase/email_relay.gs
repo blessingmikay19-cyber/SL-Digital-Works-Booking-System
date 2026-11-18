@@ -1,0 +1,144 @@
+/**
+ * SL Digital Works booking email relay (Google Apps Script)
+ *
+ * Supabase calls this web app when a booking is created or its status changes.
+ *   - New booking:        confirmation to the client + "new booking" notice to you
+ *   - Status -> confirmed: "your booking is confirmed" to the client
+ *   - Status -> cancelled: cancellation notice to the client
+ *   - Other status changes (e.g. completed) send nothing.
+ *
+ * The shared secret lives in Project Settings > Script properties as SECRET.
+ */
+
+const BRAND = 'SL Digital Works';
+const COLOR = '#17645B';
+
+function doPost(e) {
+  try {
+    const d = JSON.parse(e.postData.contents);
+    const secret = PropertiesService.getScriptProperties().getProperty('SECRET');
+    if (!secret || d.secret !== secret) return reply({ ok: false, error: 'unauthorized' });
+
+    if (d.event === 'status_changed') {
+      if (d.status === 'confirmed') sendClientEmail(d, 'Good news \u2013 your booking is now confirmed.');
+      else if (d.status === 'cancelled') sendCancellationEmail(d);
+    } else {
+      sendClientEmail(d);
+      sendOwnerEmail(d);
+    }
+    return reply({ ok: true });
+  } catch (err) {
+    return reply({ ok: false, error: String(err) });
+  }
+}
+
+function reply(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
+}
+
+// Escape anything a visitor typed before putting it in HTML.
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
+
+function priceLabel(p) {
+  const n = Number(p);
+  return n > 0 ? 'R' + n : 'Free';
+}
+
+function firstName(d) {
+  return String(d.client_name || '').trim().split(' ')[0] || 'there';
+}
+
+function wrap(inner) {
+  return '<div style="font-family:Arial,Helvetica,sans-serif;color:#172E2B;max-width:520px;margin:0 auto;padding:24px">' +
+    '<div style="font-size:24px;font-weight:700;color:' + COLOR + ';margin-bottom:24px">' + BRAND + '</div>' +
+    inner +
+    '<div style="margin-top:32px;font-size:12px;color:#5B6C68">' + BRAND + ' / Thoughtful websites &amp; apps.</div></div>';
+}
+
+function summaryBox(d, muted) {
+  const bg = muted ? '#F1F3F0' : '#E9F2EE';
+  const col = muted ? '#5B6C68' : COLOR;
+  return '<div style="background:' + bg + ';border-radius:12px;padding:16px 20px;margin:20px 0">' +
+    '<div style="font-size:18px;font-weight:700;color:' + col + '">' + esc(d.service) + '</div>' +
+    '<div style="margin-top:8px">' + esc(d.date_label) + '<br>' + esc(d.time_label) + ' &middot; SAST (UTC+2)<br>' +
+    esc(d.duration_minutes) + ' minutes &middot; Online &middot; ' + priceLabel(d.price) + '</div></div>';
+}
+
+/** Confirmation to the client. [intro] overrides the opening line. */
+function sendClientEmail(d, intro) {
+  const owner = Session.getEffectiveUser().getEmail();
+  const confirmed = d.status === 'confirmed';
+  const line = intro || (confirmed ? 'You\u2019re booked. Here are your details.' :
+    'Thanks \u2013 your request is in. I\u2019ll confirm it shortly.');
+  const subject = (confirmed ? 'Your booking is confirmed: ' : 'We\u2019ve received your booking request: ') +
+    d.service + ', ' + d.date_label;
+  const html = wrap(
+    '<p>Hi ' + esc(firstName(d)) + ',</p><p>' + line + '</p>' +
+    summaryBox(d) +
+    '<p style="font-weight:700;margin-bottom:4px">What happens next</p>' +
+    '<p style="margin-top:0">1. Bring your idea and any questions.<br>' +
+    '2. I\u2019ll send the joining details before your session.<br>' +
+    '3. Payment, if any, is arranged after booking.</p>' +
+    '<p>Need to change or cancel? Just reply to this email.</p>'
+  );
+  MailApp.sendEmail({ to: d.client_email, subject: subject, htmlBody: html, name: BRAND, replyTo: owner });
+}
+
+/** Cancellation notice to the client. */
+function sendCancellationEmail(d) {
+  const owner = Session.getEffectiveUser().getEmail();
+  const subject = 'Your booking has been cancelled: ' + d.service + ', ' + d.date_label;
+  const html = wrap(
+    '<p>Hi ' + esc(firstName(d)) + ',</p>' +
+    '<p>Your booking below has been cancelled.</p>' +
+    summaryBox(d, true) +
+    '<p>If this wasn\u2019t expected, or you\u2019d like to find another time, just reply to this email ' +
+    'or book again on the website.</p>'
+  );
+  MailApp.sendEmail({ to: d.client_email, subject: subject, htmlBody: html, name: BRAND, replyTo: owner });
+}
+
+/** "New booking" notice to you. */
+function sendOwnerEmail(d) {
+  const owner = Session.getEffectiveUser().getEmail();
+  const subject = 'New booking: ' + d.client_name + ', ' + d.service + ', ' + d.date_label + ' ' + d.time_label;
+  const html = wrap(
+    '<p style="font-weight:700">New booking (' + esc(d.status) + ')</p>' +
+    summaryBox(d) +
+    '<p><b>Client:</b> ' + esc(d.client_name) + '<br>' +
+    '<b>Email:</b> ' + esc(d.client_email) + '<br>' +
+    '<b>Phone:</b> ' + esc(d.client_phone || '\u2013') + '<br>' +
+    '<b>Notes:</b> ' + esc(d.notes || '\u2013') + '</p>'
+  );
+  MailApp.sendEmail({ to: owner, subject: subject, htmlBody: html, name: BRAND, replyTo: d.client_email });
+}
+
+/** Run once from the editor to grant Gmail permission. */
+function authorize() {
+  MailApp.sendEmail(Session.getEffectiveUser().getEmail(), 'SL Digital Works email relay is authorised', 'It works.');
+}
+
+function sampleBooking() {
+  return {
+    status: 'confirmed', service: 'Discovery call', price: 0, duration_minutes: 30,
+    date_label: 'Friday, 20 November 2026', time_label: '10:00\u201310:30',
+    client_name: 'Alex Morgan', client_email: Session.getEffectiveUser().getEmail(),
+    client_phone: '+27 82 123 4567', notes: 'I\u2019d love to talk about a booking app.'
+  };
+}
+
+/** Preview the new-booking emails (sent only to you). */
+function testBooking() {
+  sendClientEmail(sampleBooking());
+  sendOwnerEmail(sampleBooking());
+}
+
+/** Preview the confirmed and cancelled emails (sent only to you). */
+function testStatusEmails() {
+  sendClientEmail(sampleBooking(), 'Good news \u2013 your booking is now confirmed.');
+  sendCancellationEmail(sampleBooking());
+}
