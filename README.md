@@ -2,9 +2,11 @@
 
 A complete booking system for a freelance design and development business: a public website where clients book a session, a private admin app where the owner manages everything, and one shared Supabase backend behind both.
 
-**Live website:** https://sldigitalworks.netlify.app  ·  **Admin app:** https://sldigitalworksmanagentapp.netlify.app (login required)_  ·  **Demo video:** _add link_
+**Live website:** https://sldigitalworks.netlify.app 
+**Admin app:** https://sldigitalworksmanagentapp.netlify.app (login required)  
+**Demo video:** _add link_
 
-> Concept project by Sibusiso Lukhele. The design is in Figma: _add link_.
+> Concept project by Sibusiso Lukhele. The design is in Figma:(https://www.figma.com/design/S3TMmuCV25Zc0j0fK2OU5G/SL-Digital-Works-Designs?node-id=3-4&t=byHKM8bkh8Oa4Seh-1)
 
 ## What it does
 
