@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Contact SL Digital Works for graphic design, website design and development enquiries."
+    />
+    <title>Contact | SL Digital Works</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../css/styles.css" />
+  </head>
+  <body>
+    <header>
+      <div class="wrap bar">
+        <a class="logo" href="../index.html">SL Digital Works</a>
+        <button
+          class="menu-toggle"
+          id="menu"
+          aria-label="Open navigation"
+          aria-expanded="false"
+        >
+          ☰
+        </button>
+        <nav id="nav" aria-label="Main navigation">
+          <a href="services.html">Services</a
+          ><a href="portfolio.html">Portfolio</a><a href="about.html">About</a
+          ><a href="contact.html">Contact</a>
+        </nav>
+        <a class="btn sm" href="booking.html">Book now ↗</a>
+      </div>
+    </header>
+    <main>
+      <section class="pad">
+        <div class="wrap two">
+          <div>
+            <div class="eyebrow">Contact</div>
+            <h1>A question, an idea, or just a hello?</h1>
+            <p class="lead">
+              For general questions, use this form. If you’d like dedicated time
+              to talk through a project, book a session instead.
+            </p>
+            <p class="small mt-24">
+              <b>Email</b><br /><a href="mailto:blessingmikay005@gmail.com"
+                >blessingmikay005@gmail.com</a
+              >
+            </p>
+            <p class="small mt-12">
+              <b>Phone</b><br /><a href="tel:+27609013645">+27 60 901 3645</a>
+            </p>
+            <p class="small mt-12">
+              South Africa · SAST (UTC+2)<br />Monday–Friday, 09:00–17:00
+              <br />Saturday, 09:00–13:00
+              <br />
+              Closed on public holidays
+            </p>
+            <p class="mt-16">
+              <a class="link" href="booking.html"
+                >Prefer a call? Book a time ↗</a
+              >
+            </p>
+          </div>
+          <form class="bkc" id="contact-form" novalidate>
+            <label for="cn">Your name</label
+            ><input
+              id="cn"
+              name="name"
+              autocomplete="name"
+              required
+              maxlength="100"
+              placeholder="e.g. Alex Morgan"
+            />
+            <div class="err" id="cn-error"></div>
+            <label for="ce">Email address</label
+            ><input
+              id="ce"
+              name="email"
+              type="email"
+              autocomplete="email"
+              required
+              maxlength="254"
+              placeholder="you@example.com"
+            />
+            <div class="err" id="ce-error"></div>
+            <label for="cp">Phone number (optional)</label
+            ><input
+              id="cp"
+              name="phone"
+              type="tel"
+              inputmode="tel"
+              autocomplete="tel"
+              maxlength="20"
+              placeholder="+27 60 123 4567"
+            />
+            <div class="err" id="cp-error"></div>
+            <label for="cm">Message</label
+            ><textarea
+              id="cm"
+              name="message"
+              rows="5"
+              required
+              maxlength="3000"
+              placeholder="What can I help you with?"
+            ></textarea>
+            <div class="err" id="cm-error"></div>
+            <p class="mt-16">
+              <button class="btn" type="submit">Prepare email ↗</button>
+            </p>
+            <p class="small mt-12">
+              Opens your email app with your message ready to send.
+            </p>
+            <div class="form-status" id="contact-status" role="status"></div>
+          </form>
+        </div>
+      </section>
+    </main>
+    <footer>
+      <div class="wrap footer-inner">
+        <div><b>SL Digital Works</b> / Thoughtful websites &amp; apps.</div>
+        <div>
+          <a href="mailto:blessingmikay005@gmail.com"
+            >blessingmikay005@gmail.com</a
+          >
+          · <a href="tel:+27609013645">+27 60 901 3645</a>
+        </div>
+      </div>
+    </footer>
+    <script src="../js/config.js"></script>
+    <script src="../js/supabase.js"></script>
+    <script src="../js/app.js"></script>
+    <script src="../js/contact.js"></script>
+  </body>
+</html>
