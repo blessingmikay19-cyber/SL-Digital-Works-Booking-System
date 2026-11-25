@@ -29,11 +29,16 @@ class AuthRepository {
   Future<void> signOut() => _db.auth.signOut();
 
   Future<bool> isAdmin() async {
-    final row = await _db
-        .from('admins')
-        .select('user_id')
-        .eq('user_id', _db.auth.currentUser!.id)
-        .maybeSingle();
-    return row != null;
-  }
+  final user = _db.auth.currentUser;
+
+  if (user == null) return false;
+
+  final row = await _db
+      .from('admins')
+      .select('user_id')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+  return row != null;
+}
 }
